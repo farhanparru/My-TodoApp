@@ -20,18 +20,7 @@ const EditTodo = ({ modalIsOpen, closeModal,todoData,fetchData }) => {
    },[todoData])
    
 
-  const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      marginTop:'-100px',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      width: '400px',
-    },
-  };
+
 
 
   const handleEditTodo = async (id)=>{
@@ -54,35 +43,54 @@ const EditTodo = ({ modalIsOpen, closeModal,todoData,fetchData }) => {
     
 
   return (
-    
     <Modal
-    isOpen={modalIsOpen}
-    onRequestClose={closeModal}
-    style={customStyles}
-  >
-
-    <h2 className="text-center mb-4">Edit Todo Title</h2>
-    <div className="mb-4">
-      <input type="text"  value={title} onChange={(e)=> setTitle(e.target.value)}  
-      className="p-2 border rounded w-full" />
-    </div>
-    <div className="flex justify-end">
-      <button
-        onClick={closeModal}
-        className="p-2 bg-gray-500 text-white rounded mr-2"
-      >
-        Close
-      </button>
-      <button   
-      className="p-2 bg-purple-500 text-white rounded"
-      // eslint-disable-next-line react/prop-types
-      onClick={() => handleEditTodo(todoData.getTodoIdData._id)}>
-       Edit
-      </button>
-    </div>
-  </Modal>
+      isOpen={modalIsOpen}
+      onRequestClose={closeModal}
+      style={{
+        content: {
+          width: '90%',
+          maxWidth: '400px',
+          margin: 'auto',
+          borderRadius: '10px',
+          padding: '20px',
+          inset: '50% auto auto 50%',
+          transform: 'translate(-50%, -50%)',
+        },
+        overlay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          zIndex: 1000,
+        },
+      }}
+    >
+      <h2 className="text-center text-lg sm:text-xl font-semibold mb-4 text-gray-800">
+        Edit Todo Title
+      </h2>
+      <div className="mb-4">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={closeModal}
+          className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:ring-2 focus:ring-gray-400"
+        >
+          Close
+        </button>
+        <button
+          // eslint-disable-next-line react/prop-types
+          onClick={() => handleEditTodo(todoData.getTodoIdData._id)}
+          className="p-2 bg-purple-500 text-white rounded hover:bg-purple-600 focus:ring-2 focus:ring-purple-400"
+        >
+          Edit
+        </button>
+      </div>
+    </Modal>
+  );
   
-);
 };
 
 export default EditTodo
