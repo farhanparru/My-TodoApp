@@ -13,6 +13,7 @@ const Todo = () => {
   const [EdiTtodo, setEditTodo] = useState(null);
 
   const fetchTodoId = async (id) => {
+    axios.defaults.withCredentials = true;
     try {
       const response = await axios.get(
         `https://my-todo-backend.vercel.app/user/api/getIdData/${id}`
@@ -36,6 +37,7 @@ const Todo = () => {
 
   // Function to fetch data
   const fetchData = async () => {
+    axios.defaults.withCredentials = true;
     try {
       const response = await axios.get(
         "https://my-todo-backend.vercel.app/user/api/getTodo"
@@ -52,6 +54,7 @@ const Todo = () => {
   }, []);
 
   const handleDelete = async (id) => {
+    axios.defaults.withCredentials = true;
     //  e.preventDefault()
     try {
       const response = await axios.delete(
@@ -67,6 +70,7 @@ const Todo = () => {
   };
 
   const handleSubmit = async (e) => {
+    axios.defaults.withCredentials = true;
     e.preventDefault();
     if (!title) {
       toast.error("Please Enter Youre Task!");
