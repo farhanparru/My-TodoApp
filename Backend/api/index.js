@@ -9,7 +9,7 @@ const userRouter = require('../router/User');
 
 
 app.use(cors({
-  origin:["https://my-todo-app-brown-seven.vercel.app"],
+  origin:["https://my-todo-frondent.vercel.app/"],
   methods: ["GET,POST,PUT,DELETE,PATCH"],
   credentials: true,
 }))
