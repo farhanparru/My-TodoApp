@@ -10,8 +10,8 @@ const router = require('../router/User');
 
 
 app.use(cors({
-  origin:"https://my-todo-app-brown-seven.vercel.app",
-  methods: "GET,POST,PUT,DELETE,PATCH",
+  origin:["https://my-todo-app-brown-seven.vercel.app"],
+  methods: ["GET,POST,PUT,DELETE,PATCH"],
 }))
 
 app.use(express.json());
