@@ -10,7 +10,7 @@ const router = require('../router/User');
 
 
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin:"https://my-todo-app-brown-seven.vercel.app",
   methods: "GET,POST,PUT,DELETE,PATCH",
 }))
 

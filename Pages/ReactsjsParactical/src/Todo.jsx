@@ -15,7 +15,7 @@ const Todo = () => {
   const fetchTodoId = async (id) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/user/api/getIdData/${id}`
+        `https://my-todo-backend.vercel.app/user/api/getIdData/${id}`
       );
       setEditTodo(response.data);
     } catch (error) {
@@ -38,7 +38,7 @@ const Todo = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/user/api/getTodo"
+        "https://my-todo-backend.vercel.app/user/api/getTodo"
       );
       setData(response.data.AllgetDatas);
     } catch (error) {
@@ -55,7 +55,7 @@ const Todo = () => {
     //  e.preventDefault()
     try {
       const response = await axios.delete(
-        `http://localhost:8000/user/api/deleteTodo/${id}`
+        `https://my-todo-backend.vercel.app/user/api/deleteTodo/${id}`
       );
       toast.success("Task Delete successfully !");
       console.log(response);
@@ -75,7 +75,7 @@ const Todo = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/user/api/AddTodo",
+        "https://my-todo-backend.vercel.app/user/api/AddTodo",
         {
           title: title,
         }
