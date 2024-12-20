@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 mongoose
-  .connect('mongodb://localhost:27017/myTodoApp', {
+  .connect('mongodb+srv://shaminmuhammad116:Parru123@cluster0.rd6fx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
