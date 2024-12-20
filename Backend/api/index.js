@@ -23,7 +23,7 @@ app.use('/user/api', router)
 const mongoURI = process.env.MONGO_URI;
 
 mongoose
-  .connect(mongoURI, {
+  .connect('mongodb://localhost:27017/myTodoApp', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
