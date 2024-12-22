@@ -1,4 +1,7 @@
-const UserDB = require("../Model/UserModel");
+const TodoDB = require("../Model/TodoModel");
+const userDB = require("../Model/UserModel")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 module.exports = {
   addTodo: async (req, res) => {
@@ -7,7 +10,7 @@ module.exports = {
 
       // create new Todo
 
-      const createnewTodo = new UserDB({
+      const createnewTodo = new TodoDB({
         title,
       });
 
@@ -30,7 +33,7 @@ module.exports = {
 
   getTodo: async (req, res) => {
     try {
-      const AllgetDatas = await UserDB.find();
+      const AllgetDatas = await TodoDB.find();
       return res
         .status(200)
         .json({ message: "Successfully Fetch datas", AllgetDatas });
@@ -44,7 +47,7 @@ module.exports = {
   getByIdTodo: async (req, res) => {
     try {
       const { id } = req.params;
-      const getTodoIdData = await UserDB.findById(id);
+      const getTodoIdData = await TodoDB.findById(id);
       if (!getTodoIdData) {
         return res.status(404).json({ message: "Note found Todo" });
       }
@@ -62,7 +65,7 @@ module.exports = {
       const { title } = req.body;
       const { id } = req.params;
 
-      const todo = await UserDB.findById(id);
+      const todo = await TodoDB.findById(id);
 
       if (!todo) {
         return res.status(404).json({
@@ -87,7 +90,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const deleteTodo = await UserDB.findByIdAndDelete(id);
+      const deleteTodo = await TodoDB.findByIdAndDelete(id);
 
       if (!deleteTodo) {
         return res.status(201).json({ message: "Note found" });
@@ -101,4 +104,54 @@ module.exports = {
       console.log(error);
     }
   },
+
+
+
+  userRegister:async(req,res)=>{
+    const {username,password,email,role} = req.body
+    try {
+      if(!username,!password,!email){
+        return res.status(402).json({message:"Please fill this feild"})
+      }
+      const hashedPassword = await bcrypt.hash(password,10)
+      const newUser = new userDB({username, password:hashedPassword, email, role})
+      await newUser.save()
+
+      return res.status(201).json({message:"User Successfully Register"})
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({message:"Internel server error"})
+    }
+  },
+
+
+    userLogin:async(req,res)=>{
+     const {username, password} = req.body
+     try {
+      const user = await userDB.findOne({username})
+      if(!user){
+        return res.status(404).json({message:"User note Found"})
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password)
+      if(!isMatch){
+        return res.status(400).json({message:"Password Note Match"})
+      }
+
+      // JWT token
+       
+      const token = jwt.sign(
+        {id:user._id, role: user.role}, process.env.JWT_SECRET,
+        {expiresIn:"1h"}
+      )
+  
+      return res.status(201).json({message:"User Successfully login", token})
+     } catch (error) {
+      
+     }
+  },
+
+
 };
+
+

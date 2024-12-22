@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {LogOut} from 'lucide-react'
 import Welcome from "../src/assets/Images/rb_27447.png";
 import { ToastContainer, toast } from "react-toastify";
 import { Trash2, UserRoundPen } from "lucide-react";
@@ -13,10 +14,10 @@ const Todo = () => {
   const [EdiTtodo, setEditTodo] = useState(null);
 
   const fetchTodoId = async (id) => {
-    axios.defaults.withCredentials = true;
+    
     try {
       const response = await axios.get(
-        `https://my-todo-api-chi.vercel.app/user/api/getIdData/${id}`
+        `http://localhost:8000/user/api/getIdData/${id}`
       );
       setEditTodo(response.data);
     } catch (error) {
@@ -37,10 +38,10 @@ const Todo = () => {
 
   // Function to fetch data
   const fetchData = async () => {
-    axios.defaults.withCredentials = true;
+
     try {
       const response = await axios.get(
-        "https://my-todo-api-chi.vercel.app/user/api/getTodo"
+        "http://localhost:8000/api/user/getTodo"
       );
       setData(response.data.AllgetDatas);
     } catch (error) {
@@ -54,11 +55,11 @@ const Todo = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    axios.defaults.withCredentials = true;
+
     //  e.preventDefault()
     try {
       const response = await axios.delete(
-        `https://my-todo-api-chi.vercel.app/user/api/deleteTodo/${id}`
+        `http://localhost:8000/user/api/deleteTodo/${id}`
       );
       toast.success("Task Delete successfully !");
       console.log(response);
@@ -70,7 +71,7 @@ const Todo = () => {
   };
 
   const handleSubmit = async (e) => {
-    axios.defaults.withCredentials = true;
+ 
     e.preventDefault();
     if (!title) {
       toast.error("Please Enter Youre Task!");
@@ -79,7 +80,7 @@ const Todo = () => {
 
     try {
       const response = await axios.post(
-        "https://my-todo-api-chi.vercel.app/user/api/AddTodo",
+        "http://localhost:8000/user/api/AddTodo",
         {
           title: title,
         }
@@ -94,8 +95,12 @@ const Todo = () => {
     }
   };
 
+
+ 
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 md:p-8">
+    <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"><LogOut /></button>
       <ToastContainer />
       <div className="mb-6 sm:mb-8 text-center">
         <img

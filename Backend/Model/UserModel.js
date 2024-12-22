@@ -1,13 +1,34 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const TodoSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true, // remove white space
+    },
 
-  title:{
-    type:String,
-    required:true,
-    trim:true,
-   }
-})
+    password: {
+      type: String,
+      required: true,
+    },
 
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-module.exports = mongoose.model('Todos', TodoSchema)
+    role: {
+      type: String,
+      required: true,
+      enum: ["admin", "manager", "user"],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+module.exports = mongoose.model('User',userSchema )

@@ -1,19 +1,21 @@
 const express = require('express')
+const dontenv = require('dotenv').config()
 const app = express()
 const PORT = 8000
 const cors = require('cors')
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const userRouter = require('../router/User');
-
+const authUser = require('../router/auth')
 
 
 app.use(cors({
-  origin:["https://my-todo-frondent.vercel.app"],
+  origin:["http://localhost:5173"],
   methods: ["GET,POST,PUT,DELETE,PATCH"],
-  credentials: true,
+
 }))
 
+// middlwares
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 mongoose
-  .connect('mongodb+srv://shaminmuhammad116:Parru123@cluster0.rd6fx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+  .connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -36,7 +38,8 @@ app.get('/',(req,res)=>{
 
 
 
-app.use('/user/api', userRouter)
+app.use('/api/user/', userRouter)
+app.use('/api/auth/', authUser)
 
 
 app.listen(PORT,()=>{
