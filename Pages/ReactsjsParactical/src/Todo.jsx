@@ -5,6 +5,7 @@ import {LogOut} from 'lucide-react'
 import Welcome from "../src/assets/Images/rb_27447.png";
 import { ToastContainer, toast } from "react-toastify";
 import { Trash2, UserRoundPen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import EditTodo from "./EditTodo";
 
 const Todo = () => {
@@ -13,11 +14,14 @@ const Todo = () => {
   const [TodoEditModalIsOpen, setTodoEditModalIsOpen] = useState(false);
   const [EdiTtodo, setEditTodo] = useState(null);
 
+
+  const navigate = useNavigate()
+
   const fetchTodoId = async (id) => {
     
     try {
       const response = await axios.get(
-        `http://localhost:8000/user/api/getIdData/${id}`
+        `http://localhost:8000/api/user/getIdData/${id}`
       );
       setEditTodo(response.data);
     } catch (error) {
@@ -96,11 +100,24 @@ const Todo = () => {
   };
 
 
+  const handleLogout = async(e)=>{
+     e.preventDefault()
+     try {
+       const LogOut = await localStorage.removeItem('authToken')
+       console.log(LogOut);  
+       navigate('/login')
+     } catch (error) {
+      console.log(error);
+      
+     }
+  }
+
+
  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 md:p-8">
-    <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"><LogOut /></button>
+    <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" onClick={handleLogout}><LogOut /></button>
       <ToastContainer />
       <div className="mb-6 sm:mb-8 text-center">
         <img

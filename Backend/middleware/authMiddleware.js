@@ -9,7 +9,7 @@ const verifayiToken = (req,res,next)=>{
     if(authHeadr &&  authHeadr.startsWith("Bearer")){
         token = authHeadr.split(" ")[1];
 
-        // console.log(token,"token");
+        console.log(token,"token");
         
        if(!token){
          return res.status(404).json({message:"No token , authorization denied"})

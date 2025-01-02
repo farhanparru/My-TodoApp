@@ -6,11 +6,11 @@ const UserCtrl = require('../controller/UserCtrl')
 
 router
 
-.post('/AddTodo',  authorizeRoles("admin", "manager"), UserCtrl.addTodo)
-.get('/getTodo',verifayiToken, authorizeRoles("admin"), UserCtrl.getTodo)
-.put('/updateTodo/:id', authorizeRoles("admin", "manager"), UserCtrl.updateTodo)
-.delete('/deleteTodo/:id', authorizeRoles("admin", "manager"), UserCtrl.TodoDelete)
-.get('/getIdData/:id',  authorizeRoles("admin", "manager","user"),UserCtrl.getByIdTodo)
+.post('/AddTodo',verifayiToken,authorizeRoles("admin", "manager"), UserCtrl.addTodo)
+.get('/getTodo',verifayiToken,authorizeRoles("admin","user","manager"), UserCtrl.getTodo)
+.put('/updateTodo/:id',verifayiToken,authorizeRoles("admin", "manager","user"), UserCtrl.updateTodo)
+.delete('/deleteTodo/:id',verifayiToken,authorizeRoles("admin", "manager","user"), UserCtrl.TodoDelete)
+.get('/getIdData/:id',verifayiToken,authorizeRoles("admin", "manager","user"),UserCtrl.getByIdTodo)
 
 
 

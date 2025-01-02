@@ -25,10 +25,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       enum: ["admin", "manager", "user"],
     },
+    verifytoken: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model('User',userSchema )
+module.exports = mongoose.model("User", userSchema);

@@ -1,7 +1,21 @@
 const TodoDB = require("../Model/TodoModel");
-const userDB = require("../Model/UserModel")
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
+const userDB = require("../Model/UserModel");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+
+// Email configuration
+
+const transporter = nodemailer.createTransport({
+  service: "gmail", // Replace with your email service (e.g., gmail, yahoo, etc.)
+  auth: {
+    user: process.env.SM_EMAIL,
+    pass: process.env.SM_PASSWORD,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 module.exports = {
   addTodo: async (req, res) => {
@@ -24,7 +38,7 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      
+
       // return res.status(500).json({
       //   message: "An error",
       // });
@@ -58,7 +72,6 @@ module.exports = {
       console.log(error);
     }
   },
-  
 
   updateTodo: async (req, res) => {
     try {
@@ -105,53 +118,180 @@ module.exports = {
     }
   },
 
-
-
-  userRegister:async(req,res)=>{
-    const {username,password,email,role} = req.body
+  userRegister: async (req, res) => {
+    const { username, password, email, role } = req.body;
     try {
-      if(!username,!password,!email){
-        return res.status(402).json({message:"Please fill this feild"})
+      if ((!username, !password, !email)) {
+        return res.status(402).json({ message: "Please fill this feild" });
       }
-      const hashedPassword = await bcrypt.hash(password,10)
-      const newUser = new userDB({username, password:hashedPassword, email, role})
-      await newUser.save()
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new userDB({
+        username,
+        password: hashedPassword,
+        email,
+        role,
+      });
+      await newUser.save();
 
-      return res.status(201).json({message:"User Successfully Register"})
+      return res.status(201).json({ message: "User Successfully Register" });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({message:"Internel server error"})
+      return res.status(500).json({ message: "Internel server error" });
     }
   },
 
-
-    userLogin:async(req,res)=>{
-     const {username, password} = req.body
-     try {
-      const user = await userDB.findOne({username})
-      if(!user){
-        return res.status(404).json({message:"User note Found"})
+  userLogin: async (req, res) => {
+    const { username, password } = req.body;
+    try {
+      const user = await userDB.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: "Customer note Found" });
       }
 
-      const isMatch = await bcrypt.compare(password, user.password)
-      if(!isMatch){
-        return res.status(400).json({message:"Password Note Match"})
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Password Note Match" });
       }
 
       // JWT token
-       
+
       const token = jwt.sign(
-        {id:user._id, role: user.role}, process.env.JWT_SECRET,
-        {expiresIn:"1h"}
-      )
-  
-      return res.status(201).json({message:"User Successfully login", token})
-     } catch (error) {
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      return res
+        .status(201)
+        .json({ message: "User Successfully login", token });
+    } catch (error) {
+      console.log(error);
       
-     }
+      return res.status(500).json({message:"Internel Server error"})
+    }
   },
 
+  // send User E-mail verifayiToken
 
+  sendPasswordLink: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res
+          .status(401)
+          .json({ status: 401, message: "Enter Your Email" });
+      }
+
+      const userfind = await userDB.findOne({ email: email });
+      if (!userfind) {
+        return res.status(404).json({ status: 404, message: "User not found" });
+      }
+
+      // Generate token
+      const token = jwt.sign({ _id: userfind._id }, process.env.JWT_SECRET, {
+        expiresIn: "150s",
+      });
+
+      // Update verifytoken
+      const setUserToken = await userDB.findByIdAndUpdate(
+        userfind._id,
+        { verifytoken: token },
+        { new: true }
+      );
+
+      if (setUserToken) {
+        const mailOptions = {
+          from: "shaminmuhammad116@gmail.com",
+          to: email,
+          subject: "Reset Your Password - TodoApplication",
+          html: `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+              <h2 style="color: #d4af37;">Password Reset Request</h2>
+              <p>Hello,</p>
+              <p>We received a request to reset your password. Please click the button below to reset your password. This link is valid for <strong>2 minutes</strong>.</p>
+              <a href="http://localhost:5173/forgotpassword/${userfind.id}/${setUserToken.verifytoken}" 
+                 style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #d4af37; text-decoration: none; border-radius: 5px;">
+                 Reset Password
+              </a>
+              <p>If you did not request a password reset, please ignore this email or contact support.</p>
+              <p>Thank you,<br>TodoApplication Team</p>
+            </div>
+          `,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error("Error sending email:", error);
+            return res
+              .status(500)
+              .json({ status: 500, message: "Email not sent" });
+          } else {
+            console.log("Email sent:", info.response);
+            return res
+              .status(200)
+              .json({
+                status: 200,
+                message: "Password reset email sent successfully",
+              });
+          }
+        });
+      } else {
+        return res.status(500).json({ status: 500, message: "Token not set" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      return res
+        .status(500)
+        .json({ status: 500, message: "Internal server error" });
+    }
+  },
+
+  // change Password
+
+  Resetpassword: async (req, res) => {
+    const { id, token } = req.params;
+    console.log(id,token,"params");
+    
+    const { password, confirm } = req.body;
+
+    if (password !== confirm) {
+      return res.status(400).json({
+        success: false,
+        message: "Password and confirm password do not match",
+      });
+    }
+    try {
+      const validUser = await userDB.findOne({ _id: id, verifytoken: token });
+      // token is valid
+      const verifayiToken = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Password update proccess code
+
+      if (validUser && verifayiToken._id) {
+        // console.log("Password:", password); // Debugging
+    const hashedPassword = await bcrypt.hash(password, 12); // Salt rounds: 12
+    
+
+
+        const setnewpassword = await userDB.findByIdAndUpdate(
+          { _id: id },
+          { password: hashedPassword }
+        );
+
+        setnewpassword.save();
+        return res
+          .status(201)
+          .json({ message: "Successfully Change password" });
+      } else {
+        return res.status(404).json({ message: "User Dont Exist.!" });
+      }
+    } catch (error) {
+      console.log(error,"error");
+      
+      return res.status(500).json({message:"Server Error "})
+    }
+  },
+
+  // verifayi Customer ResetPassword Time
 };
-
-
