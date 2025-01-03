@@ -188,10 +188,14 @@ module.exports = {
         return res.status(404).json({ status: 404, message: "User not found" });
       }
 
+
+    
       // Generate token
       const token = jwt.sign({ _id: userfind._id }, process.env.JWT_SECRET, {
         expiresIn: "150s",
       });
+
+      
 
       // Update verifytoken
       const setUserToken = await userDB.findByIdAndUpdate(
@@ -251,7 +255,7 @@ module.exports = {
 
   Resetpassword: async (req, res) => {
     const { id, token } = req.params;
-    console.log(id,token,"params");
+ 
     
     const { password, confirm } = req.body;
 
@@ -263,9 +267,28 @@ module.exports = {
     }
     try {
       const validUser = await userDB.findOne({ _id: id, verifytoken: token });
-      // token is valid
-      const verifayiToken = jwt.verify(token, process.env.JWT_SECRET);
 
+
+
+      // token is valid
+      try {
+        const verifayiToken = jwt.verify(token, process.env.JWT_SECRET)
+        console.log(verifayiToken,"verifayiToken");
+        
+
+      } catch (error) {
+        if (error.name === "TokenExpiredError") {
+          return res.status(401).json({
+            success: false,
+            message: "Token expired, please generate a new reset link",
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          message: "Invalid token",
+        });
+      }
+   
       // Password update proccess code
 
       if (validUser && verifayiToken._id) {
@@ -294,4 +317,28 @@ module.exports = {
   },
 
   // verifayi Customer ResetPassword Time
+
+  VerifyCustomer:async(req,res)=>{
+    const {id,token} = req.params
+    try {
+      const checkValidcustomer = await userDB.findOne({_id: id, verifytoken:token})
+
+      if(!checkValidcustomer){
+        return res.status(404).json({ message: "Invalid user or token" });
+      }
+
+      const checkToken = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      )
+      
+      if(checkValidcustomer && checkToken._id ){     
+      return res.status(200).json({ message: "Customer verified successfully" });
+      }
+
+    } catch (error) {
+      console.error("Error verifying customer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
 };
