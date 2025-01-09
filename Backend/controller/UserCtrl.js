@@ -166,8 +166,8 @@ module.exports = {
         .json({ message: "User Successfully login", token });
     } catch (error) {
       console.log(error);
-      
-      return res.status(500).json({message:"Internel Server error"})
+
+      return res.status(500).json({ message: "Internel Server error" });
     }
   },
 
@@ -175,7 +175,7 @@ module.exports = {
 
   sendPasswordLink: async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email , username} = req.body;
 
       if (!email) {
         return res
@@ -183,19 +183,20 @@ module.exports = {
           .json({ status: 401, message: "Enter Your Email" });
       }
 
-      const userfind = await userDB.findOne({ email: email });
-      if (!userfind) {
-        return res.status(404).json({ status: 404, message: "User not found" });
+      const findCustomer = await userDB.findOne({username:username})
+      if(!findCustomer){
+        return res.status(404).json({message:"This Customer Note have Application"})
       }
 
+      const userfind = await userDB.findOne({ email: email });
+      if (!userfind) {
+        return res.status(401).json({ status: 401, message: "This Email Note Enter Application" });
+      }
 
-    
       // Generate token
       const token = jwt.sign({ _id: userfind._id }, process.env.JWT_SECRET, {
         expiresIn: "150s",
       });
-
-      
 
       // Update verifytoken
       const setUserToken = await userDB.findByIdAndUpdate(
@@ -232,12 +233,10 @@ module.exports = {
               .json({ status: 500, message: "Email not sent" });
           } else {
             console.log("Email sent:", info.response);
-            return res
-              .status(200)
-              .json({
-                status: 200,
-                message: "Password reset email sent successfully",
-              });
+            return res.status(200).json({
+              status: 200,
+              message: "Password reset email sent successfully",
+            });
           }
         });
       } else {
@@ -255,27 +254,37 @@ module.exports = {
 
   Resetpassword: async (req, res) => {
     const { id, token } = req.params;
- 
-    
-    const { password, confirm } = req.body;
-
+    const { username, password, confirm } = req.body;
+  
     if (password !== confirm) {
       return res.status(400).json({
         success: false,
         message: "Password and confirm password do not match",
       });
     }
+  
     try {
+      const findCustomer = await userDB.findOne({ username: username });
+      if (!findCustomer) {
+        return res.status(404).json({ message: "This customer is not found" });
+      }
+  
       const validUser = await userDB.findOne({ _id: id, verifytoken: token });
-
-
-
-      // token is valid
+      if (!validUser) {
+        return res.status(404).json({ message: "User does not exist" });
+      }
+  
+      // Verify the token and handle token expiration error
       try {
-        const verifayiToken = jwt.verify(token, process.env.JWT_SECRET)
-        console.log(verifayiToken,"verifayiToken");
-        
-
+        const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(verifiedToken, "verifiedToken");
+  
+        // Proceed to update the password
+        const hashedPassword = await bcrypt.hash(password, 12); // Salt rounds: 12
+        validUser.password = hashedPassword;
+        await validUser.save();
+  
+        return res.status(201).json({ message: "Password changed successfully" });
       } catch (error) {
         if (error.name === "TokenExpiredError") {
           return res.status(401).json({
@@ -288,57 +297,37 @@ module.exports = {
           message: "Invalid token",
         });
       }
-   
-      // Password update proccess code
-
-      if (validUser && verifayiToken._id) {
-        // console.log("Password:", password); // Debugging
-    const hashedPassword = await bcrypt.hash(password, 12); // Salt rounds: 12
-    
-
-
-        const setnewpassword = await userDB.findByIdAndUpdate(
-          { _id: id },
-          { password: hashedPassword }
-        );
-
-        setnewpassword.save();
-        return res
-          .status(201)
-          .json({ message: "Successfully Change password" });
-      } else {
-        return res.status(404).json({ message: "User Dont Exist.!" });
-      }
     } catch (error) {
-      console.log(error,"error");
-      
-      return res.status(500).json({message:"Server Error "})
+      console.error(error, "error");
+      return res.status(500).json({ message: "Server error" });
     }
   },
+  
 
   // verifayi Customer ResetPassword Time
 
-  VerifyCustomer:async(req,res)=>{
-    const {id,token} = req.params
+  VerifyCustomer: async (req, res) => {
+    const { id, token } = req.params;
     try {
-      const checkValidcustomer = await userDB.findOne({_id: id, verifytoken:token})
+      const checkValidcustomer = await userDB.findOne({
+        _id: id,
+        verifytoken: token,
+      });
 
-      if(!checkValidcustomer){
+      if (!checkValidcustomer) {
         return res.status(404).json({ message: "Invalid user or token" });
       }
 
-      const checkToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET
-      )
-      
-      if(checkValidcustomer && checkToken._id ){     
-      return res.status(200).json({ message: "Customer verified successfully" });
-      }
+      const checkToken = jwt.verify(token, process.env.JWT_SECRET);
 
+      if (checkValidcustomer && checkToken._id) {
+        return res
+          .status(200)
+          .json({ message: "Customer verified successfully" });
+      }
     } catch (error) {
       console.error("Error verifying customer:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 };

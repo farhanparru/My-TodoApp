@@ -1,35 +1,64 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
 function RecoverPassword() {
-  const [Username, setUsername] = useState("");
+  const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
    const {id,token} = useParams()
+   const navigate = useNavigate()
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+   // Check if any field is empty
+   if (!username || !newPassword || !confirmPassword) {
+    toast.error('Please enter all fields.');
+    return;
+  }
+
+    // Check if passwords match before making the request
+    if (newPassword !== confirmPassword) {
+      toast.error('Password and confirm password do not match.');
+      return;
+    }
+  
     try {
-      const response = await axios.post(`http://localhost:8000/api/auth/UpdatePassword/${id}/${token}`)
-      toast.success('Password change Successfully!')
+      const response = await axios.post(`http://localhost:8000/api/auth/UpdatePassword/${id}/${token}`, {
+        username: username,
+        password: newPassword,
+        confirm: confirmPassword
+      });
+  
+      toast.success('Password changed successfully!');
       console.log(response);
-      
+      navigate('/login'); // Redirect to login page after success
     } catch (error) {
-      toast.error('Failed to change password reset email. Please try again.');
-      console.log(error);
-      
+        if (error.response.status === 401) {
+          
+          toast.error('Token expired, please generate a new reset link.');
+          navigate('*');
+        } else if (error.response.status  === 404) {
+          toast.error('This customer is not found in the application.');
+        } else if (error.response.status  === 400 ) {
+          toast.error('Password and confirm password do not match.');
+        } else {
+          toast.error('Failed to reset password. Please try again.');
+        }
+     
     }
   };
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 h-screen bg-[#cffadf]">
@@ -54,9 +83,9 @@ function RecoverPassword() {
             Username 
           </label>
           <input
-            id="email"
-            type="email"
-            value={Username}
+            id="username"
+            type="text"
+            value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mt-2 mb-4"
           />

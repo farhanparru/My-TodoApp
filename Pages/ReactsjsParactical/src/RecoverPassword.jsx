@@ -1,80 +1,126 @@
-import { useState } from 'react';
-import { HiOutlineMail, HiLockClosed } from 'react-icons/hi';
-import { FaFacebook, FaTwitter, FaLinkedin } from 'react-icons/fa';
-import {useNavigate} from 'react-router-dom'
+// eslint-disable-next-line no-unused-vars
+import React, { useState } from 'react';
+import { FiLock, FiMail, FiUser } from 'react-icons/fi';
+import gifLogo from '../src/assets/Images/list_16678000.gif';
 import { ToastContainer, toast } from 'react-toastify';
+import {useNavigate} from 'react-router-dom'
 import axios from 'axios'
 import 'react-toastify/dist/ReactToastify.css';
 
-function RecoverPassword() {
-
-   const navigate = useNavigate()
-
+export default function RecoverPassword() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+
+  const navigate = useNavigate()
 
   const handleSubmit = async(e) => {
-        e.preventDefault();
-        if(!email){
-          toast.error('Please enter a valid email address.');
-          return;
-        }
-       try {
-        const response = await axios.post('http://localhost:8000/api/auth/sendPasswordLink', {email})
-        toast.success('Password reset email sent successfully!')
-        navigate('/login')
-        setEmail('')
-        console.log(response,"send email");
-        
-       } catch (error) {
-        toast.error('Failed to send password reset email. Please try again.');
-        console.log(error);
-        
-       }
-  };
+    e.preventDefault();
+    if(!username,!email){
+      toast.error('Please enter all Feild.');
+      return;
+    }
+   try {
+    const response = await axios.post('http://localhost:8000/api/auth/sendPasswordLink', {
+      username:username,
+      email:email
+    })
+    toast.success('Password reset email sent successfully!')
+    navigate('/login')
+    setEmail('')
+    console.log(response,"send email");
+    
+   } catch (error) {
+    if(error.response.status === 404){
+      toast.error('This Customer Note Enter Application.');
+
+    }else if (error.response.status === 401){
+      toast.error('This E-mail Note Enter Application!.');
+    }else{
+      toast.error('Failed to send password reset email. Please try again.');
+    }
+   
+    
+    console.log(error);
+    
+   }
+};
 
   return (
-    <div className='flex flex-col min-h-screen'>
+    <div className='flex flex-wrap items-center justify-center min-h-screen bg-indigo-50'>
     <ToastContainer/>
-      <div className='bg-purple-50 text-center py-2 flex flex-col items-center justify-center bg-fixed bg-center bg-cover' style={{ backgroundImage: "url('https://source.unsplash.com/random/1280x720?security')" }}>
-         <img className='h-[200px] w-[200px] object-contain m-0 p-0' src='https://objectstorage.me-dubai-1.oraclecloud.com/n/axwzijd5v1vn/b/DSL_IMAGES/o/IMAGE/7c9c886e-6ab4-4e88-aecd-4ed24873a05c-recoverrr-Photoroom.png'/>
-        <h2 className='text-3xl text-gray-800 font-bold'>Secure Your Account</h2>
-        <p className='m-2 text-md text-gray-700'>Follow a few simple steps to reset your password and secure your account.</p>
-      
-      </div>
-      <main className='flex-grow'>
-        <div className='max-w-lg mx-auto my-5 p-4'>
-          <div className='text-center'>
-            <HiLockClosed className='mx-auto text-5xl text-indigo-500' />
-            <h1 className='text-3xl font-semibold my-2'>Recover Password</h1>
-            <p className='text-gray-600 text-sm'>Let s quickly get you back into your account.</p>
+      <div className='w-full md:w-1/2 px-8 py-6'>
+        <div className='mb-4 text-center'>
+          <div className='flex justify-center mb-4'>
+            <img
+              src={gifLogo}
+              alt="Loading animation"
+              className='w-24 h-24 object-cover rounded-full'
+            />
           </div>
-          <form onSubmit={handleSubmit} className='my-3'>
-            <div className='mb-4'>
-              <label htmlFor='email' className='block text-sm font-medium text-gray-700'>Email</label>
-              <div className='mt-1 relative rounded-md shadow-sm'>
-
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiOutlineMail className="h-5 w-5 text-gray-400" />
-                </div>
-
-                <input type='email' name='email' id='email'  value={email} className="w-full text-sm
-                 text-gray-800 border border-gray-300 px-3 py-3 rounded-lg outline-blue-600"  onChange={(e) => setEmail(e.target.value)}  required
-               aria-label="Email" style={{"paddingLeft":"2.75rem"}}/>
-              </div>
-
-            </div>
-            <button type='submit' className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'>Send Reset Link</button>
-          </form>
-          <div className='text-sm text-center text-gray-500'>Privacy Policy | Terms of Service</div>
-          <div className='flex justify-center space-x-4 mt-4'>
-            <FaFacebook className='text-xl text-gray-600 cursor-pointer' />
-            <FaTwitter className='text-xl text-gray-600 cursor-pointer' />
-            <FaLinkedin className='text-xl text-gray-600 cursor-pointer' />
-          </div>
+          <FiLock className='w-16 h-16 mx-auto text-gray-400' />
+          <h1 className='text-xl font-bold'>Forgot Your Password?</h1>
+          <p className='text-sm'>Enter your details below, and we’ll send you a link to reset your password.</p>
         </div>
-      </main>
+
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div>
+            <label htmlFor='username' className='block text-sm font-medium text-gray-700'>Username</label>
+            <div className='mt-1 relative rounded-md shadow-sm'>
+              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                <FiUser className='h-5 w-5 text-gray-400' />
+              </div>
+              <input
+                type='text'
+                id='username'
+                required
+                className='w-full px-3 py-2 border rounded-md focus:border-indigo-500 focus:ring-indigo-500 pl-10'
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor='email' className='block text-sm font-medium text-gray-700'>Email Address</label>
+            <div className='mt-1 relative rounded-md shadow-sm'>
+              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                <FiMail className='h-5 w-5 text-gray-400' />
+              </div>
+              <input
+                type='email'
+                id='email'
+                required
+                className='w-full px-3 py-2 border rounded-md focus:border-indigo-500 focus:ring-indigo-500 pl-10'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <button
+            type='submit'
+            className='w-full px-4 py-2 font-bold text-white bg-indigo-500 rounded-md hover:bg-indigo-600'
+          
+          >
+            Send Reset Link
+          </button>
+
+         
+            <p className='mt-4 text-center text-green-500'>
+              If your email is in our system, you will receive a password reset link shortly.
+            </p>
+         
+        </form>
+      </div>
+
+      <div className='w-full md:w-1/2 lg:w-5/12 mt-20'>
+        <img
+          className='object-contain w-full h-full rounded-r-lg'
+          src='https://objectstorage.me-dubai-1.oraclecloud.com/n/axwzijd5v1vn/b/DSL_IMAGES/o/IMAGE/8a215904-3bd2-48c0-80b8-154db5e85262-recover-Photoroom.png'
+          alt='Security'
+        />
+      </div>
+      
     </div>
   );
 }
-
-export default RecoverPassword;
