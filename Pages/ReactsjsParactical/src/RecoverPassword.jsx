@@ -20,7 +20,7 @@ export default function RecoverPassword() {
       return;
     }
    try {
-    const response = await axios.post('http://localhost:8000/api/auth/sendPasswordLink', {
+    const response = await axios.post('  https://my-todo-api-chi.vercel.app/api/auth/sendPasswordLink', {
       username:username,
       email:email
     })

@@ -21,7 +21,7 @@ const Todo = () => {
     
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/user/getIdData/${id}`
+        `  https://my-todo-api-chi.vercel.app/api/user/getIdData/${id}`
       );
       setEditTodo(response.data);
     } catch (error) {
@@ -45,7 +45,7 @@ const Todo = () => {
 
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/user/getTodo"
+        "  https://my-todo-api-chi.vercel.app/api/user/getTodo"
       );
       setData(response.data.AllgetDatas);
     } catch (error) {
@@ -63,7 +63,7 @@ const Todo = () => {
     //  e.preventDefault()
     try {
       const response = await axios.delete(
-        `http://localhost:8000/user/api/deleteTodo/${id}`
+        `  https://my-todo-api-chi.vercel.app/user/api/deleteTodo/${id}`
       );
       toast.success("Task Delete successfully !");
       console.log(response);
@@ -84,7 +84,7 @@ const Todo = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/user/api/AddTodo",
+        "  https://my-todo-api-chi.vercel.app/user/api/AddTodo",
         {
           title: title,
         }

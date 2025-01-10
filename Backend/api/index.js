@@ -10,10 +10,11 @@ const authUser = require('../router/auth')
 
 
 app.use(cors({
-  origin:["http://localhost:5173"],
+  origin:["https://my-todo-frondent.vercel.app"],
   methods: ["GET,POST,PUT,DELETE,PATCH"],
-
+  credentials: true,
 }))
+
 
 // middlwares
 app.use(express.json());
