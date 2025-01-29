@@ -25,7 +25,7 @@ const EditTodo = ({ modalIsOpen, closeModal,todoData,fetchData }) => {
 
   const handleEditTodo = async (id)=>{
     try {
-      const response = await axios.put(` https://my-todo-api-chi.vercel.app/user/api/updateTodo/${id}`,
+      const response = await axios.put(`http://localhost:8000/api/user/updateTodo/${id}`,
         { title }
       )
       console.log(response);

@@ -6,6 +6,7 @@ import Login from '../src/login'
 import RecoverPassword from '../src/RecoverPassword'
 import ChangePassword from '../src/UpdatePassword'
 import ServerErro from "./ServerErro";
+import OtpverifyCation from "./OtpverifyCation";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Register />} />
           <Route path="/todo" element={<Todo/>}/>
+          <Route path="/OTP" element={<OtpverifyCation/>}/>
           <Route path="/login" element={<Login/>}/>
           <Route path="*" element={<ServerErro/>}/>
           <Route path="/recoverPassword" element={<RecoverPassword/>}/>

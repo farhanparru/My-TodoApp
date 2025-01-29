@@ -3,6 +3,7 @@ const userDB = require("../Model/UserModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const otpGenerator = require('otp-generator');
 
 // Email configuration
 
@@ -16,6 +17,261 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
+
+
+// OTP generation
+
+
+const generateAndsendOTP = async (email)=>{
+  const otp = otpGenerator.generate(4, {
+    digits: true,              // Include digits
+    lowerCaseAlphabets: false, // Exclude lowercase letters
+    upperCaseAlphabets: false, // Exclude uppercase letters
+    specialChars: false         // Exclude special characters
+  });
+  
+
+  console.log(`Generated OTP: ${otp}`);
+
+  
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  console.log(`OTP expires at: ${expiresAt}`);
+
+
+  // Configure nodemailer
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.SM_EMAIL,
+      pass: process.env.SM_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  await transporter.sendMail({
+    to: email, // Recipient email address
+    subject: 'Todomaster - Seamless Task Management with OTP Security',
+    html: `<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>OTP Verification</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        style="
+          margin: 0;
+          font-family: 'Poppins', sans-serif;
+          background: #ffffff;
+          font-size: 14px;
+        "
+      >
+        <div
+          style="
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 45px 30px 60px;
+            background: #f4f7ff;
+            background-image: url(https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661497957196_595865/email-template-background-banner);
+            background-repeat: no-repeat;
+            background-size: 800px 452px;
+            background-position: top center;
+            font-size: 14px;
+            color: #434343;
+          "
+        >
+          <header>
+            <table style="width: 100%;">
+              <tbody>
+                <tr style="height: 0;">
+                  <td>
+                    <img
+                      alt="TodoMaster Logo"
+                      src="https://tshop.r10s.jp/osanpo/cabinet/05784991/7570380-1.jpg?fitin=720%3A720"
+                      height="60px"
+                    />
+                  </td>
+                  <td style="text-align: right;">
+                    <span
+                      style="font-size: 16px; line-height: 30px; color: #ffffff;"
+                      >${new Date().toDateString()}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </header>
+    
+          <main>
+            <div
+              style="
+                margin: 0;
+                margin-top: 70px;
+                padding: 92px 30px 115px;
+                background: #ffffff;
+                border-radius: 30px;
+                text-align: center;
+              "
+            >
+              <div style="width: 100%; max-width: 489px; margin: 0 auto;">
+                <h1
+                  style="
+                    margin: 0;
+                    font-size: 24px;
+                    font-weight: 500;
+                    color: #1f1f1f;
+                  "
+                >
+                  Your OTP Code
+                </h1>
+                <p
+                  style="
+                    margin: 0;
+                    margin-top: 17px;
+                    font-size: 16px;
+                    font-weight: 500;
+                  "
+                >
+                  Hi there,
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    margin-top: 17px;
+                    font-weight: 500;
+                    letter-spacing: 0.56px;
+                  "
+                >
+                  Thank you for using TodoMaster! Use the following OTP to verify your identity. This code is valid for 
+                  <span style="font-weight: 600; color: #1f1f1f;">10 minutes</span>. Please do not share this OTP with anyone for security purposes.
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    margin-top: 60px;
+                    font-size: 40px;
+                    font-weight: 600;
+                    letter-spacing: 25px;
+                    color: #ba3d4f;
+                  "
+                >
+                  ${otp}
+                </p>
+              </div>
+            </div>
+    
+            <p
+              style="
+                max-width: 400px;
+                margin: 0 auto;
+                margin-top: 90px;
+                text-align: center;
+                font-weight: 500;
+                color: #8c8c8c;
+              "
+            >
+              Need help? Contact us at 
+              <a
+                href="mailto:support@todomaster.com"
+                style="color: #499fb6; text-decoration: none;"
+                >support@todomaster.com</a
+              >
+              or visit our
+              <a
+                href="https://todomaster.com/help-center"
+                target="_blank"
+                style="color: #499fb6; text-decoration: none;"
+                >Help Center</a
+              >.
+            </p>
+          </main>
+    
+          <footer
+            style="
+              width: 100%;
+              max-width: 490px;
+              margin: 20px auto 0;
+              text-align: center;
+              border-top: 1px solid #e6ebf1;
+            "
+          >
+            <p
+              style="
+                margin: 0;
+                margin-top: 40px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #434343;
+              "
+            >
+              TodoMaster
+            </p>
+            <p style="margin: 0; margin-top: 8px; color: #434343;">
+              123 TodoMaster Lane, Your City, Your State
+            </p>
+            <div style="margin: 0; margin-top: 16px;">
+              <a href="https://facebook.com/todomaster" target="_blank" style="display: inline-block;">
+                <img
+                  width="36px"
+                  alt="Facebook"
+                  src="https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661502815169_682499/email-template-icon-facebook"
+                />
+              </a>
+              <a
+                href="https://instagram.com/todomaster"
+                target="_blank"
+                style="display: inline-block; margin-left: 8px;"
+              >
+                <img
+                  width="36px"
+                  alt="Instagram"
+                  src="https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661504218208_684135/email-template-icon-instagram"
+                />
+              </a>
+              <a
+                href="https://twitter.com/todomaster"
+                target="_blank"
+                style="display: inline-block; margin-left: 8px;"
+              >
+                <img
+                  width="36px"
+                  alt="Twitter"
+                  src="https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661503043040_372004/email-template-icon-twitter"
+                />
+              </a>
+              <a
+                href="https://youtube.com/todomaster"
+                target="_blank"
+                style="display: inline-block; margin-left: 8px;"
+              >
+                <img
+                  width="36px"
+                  alt="Youtube"
+                  src="https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661503195931_210869/email-template-icon-youtube"
+                />
+              </a>
+            </div>
+            <p style="margin: 0; margin-top: 16px; color: #434343;">
+              Copyright © ${new Date().getFullYear()} TodoMaster. All rights reserved.
+            </p>
+          </footer>
+        </div>
+      </body>
+    </html>
+    `
+  });
+  
+
+  return { otp, expiresAt };
+}
+
+
 
 module.exports = {
   addTodo: async (req, res) => {
@@ -124,6 +380,10 @@ module.exports = {
       if ((!username, !password, !email)) {
         return res.status(402).json({ message: "Please fill this feild" });
       }
+     
+      const existingUser =  await userDB.findOne({email})
+      if(existingUser) return res.status(400).json({message:"User already exists"})
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new userDB({
         username,
@@ -133,12 +393,24 @@ module.exports = {
       });
       await newUser.save();
 
+      const {otp,expiresAt} = await generateAndsendOTP(email)
+      newUser.otp = otp;
+      newUser.otpExpiresAt = expiresAt;
+      await newUser.save()
+
       return res.status(201).json({ message: "User Successfully Register" });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Internel server error" });
     }
   },
+
+
+  verifatOTP:async(req,res)=>{
+     
+  },
+
+
 
   userLogin: async (req, res) => {
     const { username, password } = req.body;
@@ -195,7 +467,7 @@ module.exports = {
 
       // Generate token
       const token = jwt.sign({ _id: userfind._id }, process.env.JWT_SECRET, {
-        expiresIn: "150s",
+     expiresIn: "1m", // 1 minute
       });
 
       // Update verifytoken
@@ -207,23 +479,40 @@ module.exports = {
 
       if (setUserToken) {
         const mailOptions = {
-          from: "shaminmuhammad116@gmail.com",
-          to: email,
-          subject: "Reset Your Password - TodoApplication",
-          html: `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-              <h2 style="color: #d4af37;">Password Reset Request</h2>
-              <p>Hello,</p>
-              <p>We received a request to reset your password. Please click the button below to reset your password. This link is valid for <strong>2 minutes</strong>.</p>
-              <a href="http://localhost:5173/forgotpassword/${userfind.id}/${setUserToken.verifytoken}" 
-                 style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #d4af37; text-decoration: none; border-radius: 5px;">
-                 Reset Password
-              </a>
-              <p>If you did not request a password reset, please ignore this email or contact support.</p>
-              <p>Thank you,<br>TodoApplication Team</p>
-            </div>
-          `,
-        };
+       from: "shaminmuhammad116@gmail.com",
+to: email,
+subject: "Reset Your Password - TodoMaster",
+html: `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <!-- Header Section -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="https://images.squarespace-cdn.com/content/v1/572b90fa8a65e243d508a96d/1467917398510-XOS3LUIP0YTR1MDWLH7A/todo+logo.jpg" alt="TodoMaster Logo" style="width: 150px; margin-bottom: 10px;">
+      <h1 style="color: #d4af37; font-size: 24px;">TodoMaster</h1>
+    </div>
+    
+    <!-- Body Section -->
+    <h2 style="color: #d4af37; text-align: center;">Password Reset Request</h2>
+    <p>Hello,</p>
+    <p>We received a request to reset your password. Please click the button below to reset your password. This link is valid for <strong>1 minute</strong>.</p>
+    
+    <!-- Reset Button -->
+    <div style="text-align: center; margin: 20px 0;">
+      <a href="http://localhost:5173/forgotpassword/${userfind.id}/${setUserToken.verifytoken}" 
+         style="display: inline-block; padding: 12px 25px; font-size: 16px; color: white; background-color: #d4af37; text-decoration: none; border-radius: 5px;">
+         Reset Password
+      </a>
+    </div>
+    
+    <p>If you did not request a password reset, please ignore this email or contact support.</p>
+    
+    <!-- Footer Section -->
+    <div style="border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; text-align: center;">
+      <p style="font-size: 14px; color: #777;">Thank you,<br><strong>TodoMaster Team</strong></p>
+    </div>
+  </div>
+`,
+};
+
 
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {

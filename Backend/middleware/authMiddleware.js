@@ -27,7 +27,7 @@ const verifayiToken = (req,res,next)=>{
             res.status(400).json({message:"Token is not Valid"})
         }
     }else{
-        return res.status(404).json({message:"No token , authorization denied"})  
+        return res.status(404).json({message:"farhan"})  
     }
 };
 

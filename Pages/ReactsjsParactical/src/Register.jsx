@@ -32,11 +32,11 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "  https://my-todo-api-chi.vercel.app/api/auth/register",
+        " http://localhost:8000/api/auth/register",
         formData
       );
       toast.success("User registered successfully!");
-      navigate("/login");
+      navigate("/OTP");
       setformData({
         username: "",
         email: "",

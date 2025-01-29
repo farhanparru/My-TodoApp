@@ -28,6 +28,8 @@ const userSchema = new mongoose.Schema(
     verifytoken: {
       type: String,
     },
+    otp: { type: String },
+    otpExpiresAt: { type: Date },
   },
   {
     timestamps: true,

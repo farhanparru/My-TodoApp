@@ -34,7 +34,7 @@ function RecoverPassword() {
     }
   
     try {
-      const response = await axios.post(`  https://my-todo-api-chi.vercel.app/api/auth/UpdatePassword/${id}/${token}`, {
+      const response = await axios.post(`http://localhost:8000/api/auth/UpdatePassword/${id}/${token}`, {
         username: username,
         password: newPassword,
         confirm: confirmPassword

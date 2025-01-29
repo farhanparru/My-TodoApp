@@ -10,7 +10,7 @@ const authUser = require('../router/auth')
 
 
 app.use(cors({
-  origin:["https://my-todo-frondent.vercel.app"],
+  origin:["http://localhost:5173"],
   methods: ["GET,POST,PUT,DELETE,PATCH"],
   credentials: true,
 }))
@@ -40,7 +40,7 @@ app.get('/',(req,res)=>{
 
 
 app.use('/api/user/', userRouter)
-app.use('/api/auth', authUser);
+app.use('/api/auth/', authUser);
 
 
 app.listen(PORT,()=>{
